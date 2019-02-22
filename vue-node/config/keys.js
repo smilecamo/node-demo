@@ -1,3 +1,4 @@
 module.exports = {
-  mongoURI: "mongodb+srv://yang:123456789@demo-fqmxl.mongodb.net/test?retryWrites=true"
+  mongoURI: "mongodb://127.0.0.1:27017/dbs",
+  secretOrkey: 'secret'
 }
