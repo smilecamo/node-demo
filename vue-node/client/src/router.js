@@ -13,6 +13,18 @@ const router = new Router({
       path: '/index',
       name: 'index',
       component: () => import('./views/Index.vue'),
+      children: [
+        {
+          path: '',
+          name: 'home',
+          component: () => import('./views/Home.vue'),
+        },
+        {
+          path: 'info',
+          name: 'info',
+          component: () => import('./views/Info.vue'),
+        },
+      ],
     },
     {
       path: '/register',

@@ -1,12 +1,17 @@
 <template>
   <div>
-    this is index
+    <head-nav></head-nav>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-export default {
+import HeadNav from '../components/Header.vue';
 
+export default {
+  components: {
+    HeadNav,
+  },
 };
 </script>
 
