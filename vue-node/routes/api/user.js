@@ -14,14 +14,16 @@ const key = require('../../config/keys')
 // $route  POST api/user/register
 // @desc 返回的请求数据
 // @access 接口是否公开 public
-
+router.get('/test',(req,res)=>{
+  res.send('success')
+})
 router.post('/register',(req,res)=>{
   // console.log(req.body);
   // 查询数据库是否拥有此邮箱
   User.findOne({email:req.body.email})
     .then((user)=>{
       if(user){
-        return res.status(400).json('邮箱已被注册!')
+        return res.json({code:400,message:'邮箱已被注册'})
       }else{
         // 头像
         const avatar = gravatar.url('emerleite@gmail.com', {
@@ -45,7 +47,7 @@ router.post('/register',(req,res)=>{
             if(err) throw err;
             newUser.password = hash
             newUser.save()
-              .then(user => res.json(user))
+              .then(user => res.json({code:200,user}))
               .catch(err=>console.log(err))
           });
         });
@@ -65,7 +67,7 @@ router.post('/login',(req,res)=>{
     .then(user=>{
       // 如果用户不存在
       if(!user){
-        return res.status(400).json('用户不存在')
+        return res.json({code:400,message:'邮箱不存在'})
       }
       // 密码匹配
       bcrypt.compare(password, user.password)
@@ -88,7 +90,10 @@ router.post('/login',(req,res)=>{
               })
             })
           }else{
-            return res.status(400).json({password:'密码错误'})
+            return res.json({
+              code: 400,
+              message:'密码错误!'
+            })
           }
         })
     })
