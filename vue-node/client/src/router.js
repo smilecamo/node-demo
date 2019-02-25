@@ -24,6 +24,11 @@ const router = new Router({
           name: 'info',
           component: () => import('./views/Info.vue'),
         },
+        {
+          path: 'fundlist',
+          name: 'fundlist',
+          component: () => import('./views/Fundlist.vue'),
+        },
       ],
     },
     {

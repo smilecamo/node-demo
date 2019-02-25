@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <el-row type="flex" justify='center'  class="container-row">
+    <el-row type="flex" justify='center'>
       <el-col :span="8">
         <div class="info-ava">
           <img src="../assets/logo.png" alt="" >
@@ -9,10 +9,10 @@
       <el-col :span="16">
         <div class="info-user">
           <div class="user-name">
-            xiangm
+            {{user.identity}}
           </div>
           <div class="user-name">
-            xiaaaa
+            {{user.name}}
           </div>
         </div>
       </el-col>
@@ -23,7 +23,11 @@
 
 <script>
 export default {
-
+  computed: {
+    user() {
+      return this.$store.getters.user;
+    },
+  },
 };
 </script>
 
@@ -35,10 +39,7 @@ html,body{
 .container{
   width: 100%;
   height: 100%;
-}
-.container-row{
-  width: 100%;
-  height: 100%;
+  min-height: 600px;
 }
 .info-ava ,.info-user{
   margin-top: 30%

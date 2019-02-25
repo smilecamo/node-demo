@@ -3,10 +3,11 @@
 # dependencies
 /expressDemo/node_modules
 /vue-node/node_modules
+/vue-node/client/node_modules
 /.pnp
 .pnp.js
 
-# testing
+# testingy
 /coverage
 
 # production
