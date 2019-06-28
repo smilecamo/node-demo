@@ -1,9 +1,11 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/expressDemo/node_modules
-/vue-node/node_modules
-/vue-node/client/node_modules
+# /expressDemo/node_modules
+# /vue-node/node_modules
+# /blog/node_modules
+# /vue-node/client/node_modules
+node_modules
 /.pnp
 .pnp.js
 
