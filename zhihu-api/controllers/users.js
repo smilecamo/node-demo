@@ -2,9 +2,11 @@ const jsonwebtoken = require('jsonwebtoken')
 const User = require('../models/users')
 const {secret} = require('../config')
 class UserCtl{
+  // 查询用户列表
   async find(ctx){
     ctx.body = await User.find();
   }
+  // 根据用户id查询特定用户
   async findById(ctx){
     /***
      * ctx.query 获取查询字符串
@@ -19,7 +21,7 @@ class UserCtl{
     }
     ctx.body = user
   }
-  // 新增用户
+  // 根据token新增用户
   async create(ctx){
     // 校验器
     ctx.verifyParams({
@@ -54,6 +56,30 @@ class UserCtl{
     }
     ctx.body = user;
   }
+  // 获取关注者列表
+  async listFollowing (ctx){
+    const user = await User.findById(ctx.params.id)
+      .select('+following')
+      .populate('following');
+    if(!user){
+      ctx.throw(404,'不存在')
+    }else{
+      ctx.body = user
+    }
+  }
+  // 关注某人
+  async follow(ctx){
+    console.log(ctx);
+    const me = await User.findById(ctx.state.user._id).select('+following');
+    if (!me.following.map(id => id.toString()).includes(ctx.params.id)) {
+      me.following.push(ctx.params.id);
+      me.save();
+    }
+    ctx.status = 204
+  }
+
+
+  // 通过用户id删除用户
   async del(ctx){
     const user = await User.findByIdAndRemove(ctx.params.id)
     if (!user) {
@@ -61,6 +87,7 @@ class UserCtl{
     }
     ctx.status = 204;
   }
+  // 用户登录返回token
   async login(ctx){
     ctx.verifyParams({
       name: { type: 'string', required: true },

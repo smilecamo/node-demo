@@ -1,7 +1,17 @@
 const Router = require('koa-router')
 const jwt = require('koa-jwt')
+const jsonwebtoken = require('jsonwebtoken');
 const router = new Router({ prefix: '/user' });
-const { find,findById,create,del,update,login} = require('../controllers/users')
+const {
+  find,
+  findById,
+  create,
+  del,
+  update,
+  login,
+  listFollowing,
+  follow
+} = require('../controllers/users');
 const { secret } = require('../config');
 // 原始验证
 // const auth = async (ctx,next)=>{
@@ -28,5 +38,6 @@ router.patch('/:id',auth, update);
 router.delete('/:id', auth, del);
 // 用户登录
 router.post('/login', login);
-
+router.get('/:id/following',listFollowing);
+router.put('/follow/:id', auth, follow);
 module.exports = router

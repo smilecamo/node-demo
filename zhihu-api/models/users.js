@@ -42,6 +42,11 @@ const userSchema = new Schema({
       }
     ],
     select: false
+  },
+  following: {
+    // 关注
+    type: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    select: false
   }
 });
 
