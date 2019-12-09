@@ -1,5 +1,5 @@
-const Router = require('koa-router')
-const jwt = require('koa-jwt')
+const Router = require('koa-router');
+const jwt = require('koa-jwt');
 const jsonwebtoken = require('jsonwebtoken');
 const router = new Router({ prefix: '/user' });
 const {
@@ -10,7 +10,10 @@ const {
   update,
   login,
   listFollowing,
-  follow
+  checkUserExist,
+  follow,
+  unfollow,
+  followers
 } = require('../controllers/users');
 const { secret } = require('../config');
 // 原始验证
@@ -19,13 +22,14 @@ const { secret } = require('../config');
 //   const token = authorization.replace('Bearer ', '');
 //   try {
 //     const user = jsonwebtoken.verify(token, secret);
+//     console.log(user);
 //     ctx.state.user = user
 //   } catch (error) {
 //     ctx.throw(401, error.message);
 //   }
 //   await next()
 // }
-const auth = jwt({secret})
+const auth = jwt({ secret });
 // 获取用户
 router.get('/', find);
 // 获取特定用户
@@ -33,11 +37,17 @@ router.get('/:id', findById);
 // 增加用户
 router.post('/', create);
 // 修改用户
-router.patch('/:id',auth, update);
+router.patch('/:id', auth, update);
 // 删除用户
 router.delete('/:id', auth, del);
 // 用户登录
 router.post('/login', login);
-router.get('/:id/following',listFollowing);
-router.put('/follow/:id', auth, follow);
-module.exports = router
+// 查看某人的关注者
+router.get('/:id/following', listFollowing);
+// 获取粉丝接口
+router.get('/:id/followers', followers);
+// 关注某人
+router.put('/follow/:id', auth, checkUserExist, follow);
+// 取消关注某人
+router.delete('/unfollow/:id', auth, checkUserExist, unfollow);
+module.exports = router;
