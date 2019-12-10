@@ -4,7 +4,19 @@ const { secret } = require('../config');
 class UserCtl {
   // 查询用户列表
   async find(ctx) {
-    ctx.body = await User.find();
+    /**
+     * Math.max(num.num)返回最大值
+     * limit(10) 返回10条数据
+     * skip(10)跳过10条数据
+     * find({key:value}) 根据key来进行模糊搜索
+     * new RegExp() 正则
+     */
+    const { pre_page = 10, page = 1 } = ctx.query;
+    const prePage = Math.max(pre_page * 1, 1);
+    const pages = Math.max(page * 1, 1) - 1;
+    ctx.body = await User.find({ name: new RegExp(ctx.query.q) })
+      .limit(prePage)
+      .skip(prePage * pages);
   }
   // 根据用户id查询特定用户
   async findById(ctx) {
@@ -12,7 +24,7 @@ class UserCtl {
      * ctx.query 获取查询字符串
      * .select() 显示过滤的值
      */
-    const { fields } = ctx.query;
+    const { fields = '' } = ctx.query;
     const selectFields = fields
       .split(';')
       .filter(f => f)
@@ -76,11 +88,13 @@ class UserCtl {
     const user = await User.find({ following: ctx.params.id });
     ctx.body = user;
   }
-// 监测用户是否存在
-  async checkUserExist(ctx,next){
-    const user = await User.findById(ctx.params.id)
-    if(!user){ctx.throw(404,'用户不存在')}
-    await next()
+  // 监测用户是否存在
+  async checkUserExist(ctx, next) {
+    const user = await User.findById(ctx.params.id);
+    if (!user) {
+      ctx.throw(404, '用户不存在');
+    }
+    await next();
   }
   // 关注某人
   async follow(ctx) {
