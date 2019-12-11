@@ -18,14 +18,21 @@ const userSchema = new Schema({
     required: true
   }, //性别
   headline: { type: String }, //一句话介绍
-  locations: { type: [{ type: String }], select: false }, //居住地 数据类型为数组 [{}]
-  business: { type: String, select: false }, //职业
+  /**
+   * 引用话题 type: Schema.Types.ObjectId,ref:'Topic'
+   *
+   */
+  locations: {
+    type: [{ type: Schema.Types.ObjectId, ref: 'Topic' }],
+    select: false
+  }, //居住地 数据类型为数组 [{}]
+  business: { type: Schema.Types.ObjectId, ref: 'Topic', select: false }, //职业
   employments: {
     //职业经历
     type: [
       {
-        company: { type: String }, //公司名
-        job: { type: String } //工作
+        company: { type: Schema.Types.ObjectId, ref: 'Topic' }, //公司名
+        job: { type: Schema.Types.ObjectId, ref: 'Topic' } //工作
       }
     ],
     select: false
@@ -46,6 +53,10 @@ const userSchema = new Schema({
   following: {
     // 关注
     type: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    select: false
+  },
+  followingTopics: {
+    type: [{ type: Schema.Types.ObjectId, ref: 'Topic' }],
     select: false
   }
 });

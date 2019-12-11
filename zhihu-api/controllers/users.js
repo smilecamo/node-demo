@@ -30,7 +30,19 @@ class UserCtl {
       .filter(f => f)
       .map(f => ' +' + f)
       .join('');
-    const user = await User.findById(ctx.params.id).select(selectFields);
+    const populateStr = fields
+      .split(';')
+      .filter(f => f)
+      .map(f => {
+        if (f === 'employments') {
+          return 'employments.company employments.job';
+        }
+        return f;
+      })
+      .join(' ');
+    const user = await User.findById(ctx.params.id)
+      .select(selectFields)
+      .populate(populateStr);
 
     if (!user) {
       ctx.throw(404, '用户不存在');
@@ -71,6 +83,33 @@ class UserCtl {
       ctx.throw(404, '用户不存在');
     }
     ctx.body = user;
+  }
+  // 通过用户id删除用户
+  async del(ctx) {
+    // findByIdAndRemove 根据id查找并移除
+    const user = await User.findByIdAndRemove(ctx.params.id);
+    if (!user) {
+      ctx.throw(404, '用户不存在');
+    }
+    ctx.status = 204;
+  }
+  // 用户登录返回token
+  async login(ctx) {
+    // 校验参数
+    ctx.verifyParams({
+      name: { type: 'string', required: true },
+      password: { type: 'string', required: true }
+    });
+    // 根据传值查找用户
+    const user = await User.findOne(ctx.request.body);
+    if (!user) {
+      ctx.throw(401, '用户名或密码错误');
+    } else {
+      const { _id, name } = user;
+      // 生成token jsonwebtoken.sign(值,密钥,时间)
+      const token = jsonwebtoken.sign({ _id, name }, secret);
+      ctx.body = { token };
+    }
   }
   // 获取关注者列表
   async listFollowing(ctx) {
@@ -120,31 +159,40 @@ class UserCtl {
     }
     ctx.status = 204;
   }
-  // 通过用户id删除用户
-  async del(ctx) {
-    // findByIdAndRemove 根据id查找并移除
-    const user = await User.findByIdAndRemove(ctx.params.id);
+  // 获取用户关注的话题
+  async listFollowingTopic(ctx) {
+    const user = await User.findById(ctx.params.id)
+      .select('+followingTopics')
+      .populate('followingTopics');
     if (!user) {
       ctx.throw(404, '用户不存在');
+    } else {
+      ctx.body = user;
+    }
+  }
+  // 关注话题
+  async followTopic(ctx) {
+    const me = await User.findById(ctx.state.user._id).select(
+      '+followingTopics'
+    );
+    // includes() 是否含有
+    if (!me.followingTopics.map(id => id.toString()).includes(ctx.params.id)) {
+      me.followingTopics.push(ctx.params.id);
+      me.save();
     }
     ctx.status = 204;
   }
-  // 用户登录返回token
-  async login(ctx) {
-    // 校验参数
-    ctx.verifyParams({
-      name: { type: 'string', required: true },
-      password: { type: 'string', required: true }
-    });
-    // 根据传值查找用户
-    const user = await User.findOne(ctx.request.body);
-    if (!user) {
-      ctx.throw(401, '用户名或密码错误');
-    } else {
-      const { _id, name } = user;
-      // 生成token jsonwebtoken.sign(值,密钥,时间)
-      const token = jsonwebtoken.sign({ _id, name }, secret);
-      ctx.body = { token };
+  // 取消关注
+  async unfollowTopic(ctx) {
+    const me = await User.findById(ctx.state.user._id).select(
+      '+followingTopics'
+    );
+    const index = me.followingTopics
+      .map(id => id.toString())
+      .indexOf(ctx.params.id);
+    if (index > -1) {
+      me.followingTopics.splice(index, 1);
+      me.save();
     }
   }
 }

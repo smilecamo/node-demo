@@ -1,5 +1,5 @@
 const Topic = require('../models/topic');
-
+const User = require('../models/users')
 class TopicCtl {
   // 直接返回所有话题列表
   async find(ctx) {
@@ -64,6 +64,19 @@ class TopicCtl {
       ctx.request.body
     );
     ctx.body = topic;
+  }
+  // 检测话题是否存在
+  async checkTopicExist(ctx, next) {
+    const topic = await Topic.findById(ctx.params.id);
+    if (!topic) {
+      ctx.throw(404, '话题不存在');
+    }
+    await next();
+  }
+  // 获取话题的粉丝
+  async followerTopic(ctx) {
+    const user = await User.find({ followingTopics: ctx.params.id });
+    ctx.body = user;
   }
 }
 

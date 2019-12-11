@@ -13,8 +13,13 @@ const {
   checkUserExist,
   follow,
   unfollow,
-  followers
+  followers,
+  followTopic,
+  followerTopic,
+  listFollowingTopic,
+  unfollowTopic
 } = require('../controllers/users');
+const {checkTopicExist} = require('../controllers/topic')
 const { secret } = require('../config');
 // 原始验证
 // const auth = async (ctx,next)=>{
@@ -50,4 +55,8 @@ router.get('/:id/followers', followers);
 router.put('/follow/:id', auth, checkUserExist, follow);
 // 取消关注某人
 router.delete('/unfollow/:id', auth, checkUserExist, unfollow);
+router.get('/followingtopic/:id', listFollowingTopic);
+// router.get('/followertopic/:id', checkTopicExist,followerTopic);
+router.put('/followingtopic/:id', auth, checkTopicExist, followTopic);
+router.delete('/unfollowingtopic/:id', auth, checkTopicExist, unfollowTopic);
 module.exports = router;
