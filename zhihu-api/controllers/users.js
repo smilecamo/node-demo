@@ -1,5 +1,6 @@
 const jsonwebtoken = require('jsonwebtoken');
 const User = require('../models/users');
+const Question = require('../models/questions')
 const { secret } = require('../config');
 class UserCtl {
   // 查询用户列表
@@ -194,6 +195,11 @@ class UserCtl {
       me.followingTopics.splice(index, 1);
       me.save();
     }
+  }
+  // 列出问题
+  async listQuestions(ctx){
+    const questions = await Question.find({questioner:ctx.params.id})
+    ctx.body = questions;
   }
 }
 

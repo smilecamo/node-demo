@@ -8,7 +8,8 @@ const {
   create,
   update,
   followerTopic,
-  checkTopicExist
+  checkTopicExist,
+  listQuestion
 } = require('../controllers/topic');
 const auth = jwt({ secret });
 // 获取所有话题
@@ -21,5 +22,6 @@ router.post('/', auth,create);
 router.patch('/:id', auth, checkTopicExist,update);
 // 获取话题下的关注者
 router.get('/followertopic/:id',checkTopicExist,  followerTopic);
+router.get('/:id/questions', checkTopicExist, listQuestion);
 
 module.exports =router

@@ -1,5 +1,6 @@
 const Topic = require('../models/topic');
 const User = require('../models/users')
+const Question = require('../models/questions')
 class TopicCtl {
   // 直接返回所有话题列表
   async find(ctx) {
@@ -77,6 +78,11 @@ class TopicCtl {
   async followerTopic(ctx) {
     const user = await User.find({ followingTopics: ctx.params.id });
     ctx.body = user;
+  }
+  // 列出问题
+  async listQuestion(ctx){
+    const question = await Question.find({topics:ctx.params.id})
+    ctx.body = question;
   }
 }
 
