@@ -18,9 +18,18 @@ const {
   followerTopic,
   listFollowingTopic,
   unfollowTopic,
-  listQuestions
+  listQuestions,
+  listLikingAnswers,
+  likeAnswer,
+  unLikeAnswer,
+  listDisLikingAnswer,
+  disLikingAnswer,
+  unDisLikingAnswer
 } = require('../controllers/users');
+// 检查话题是否存在
 const {checkTopicExist} = require('../controllers/topic')
+// 检查答案是否存在
+const {checkAnswerExist} = require('../controllers/answers')
 const { secret } = require('../config');
 // 原始验证
 // const auth = async (ctx,next)=>{
@@ -62,4 +71,28 @@ router.put('/followingtopic/:id', auth, checkTopicExist, followTopic);
 router.delete('/unfollowingtopic/:id', auth, checkTopicExist, unfollowTopic);
 // 获取问题接口
 router.get('/:id/questions', listQuestions);
+// 获取用户赞列表
+router.get('/:id/likingAnswers', listLikingAnswers);
+// 给回答点赞
+router.put(
+  '/likingAnswers/:id',
+  auth,
+  checkAnswerExist,
+  likeAnswer,
+  unDisLikingAnswer
+);
+// 给回答取消赞
+router.delete('/likingAnswers/:id', auth, checkAnswerExist, unLikeAnswer);
+// 获取用户踩列表
+router.get('/:id/dislikingAnswers', listDisLikingAnswer);
+// 给某个回答踩一脚
+router.put(
+  '/dislikingAnswers/:id',
+  auth,
+  checkAnswerExist,
+  disLikingAnswer,
+  unLikeAnswer
+);
+// 给回答取消踩一脚
+router.delete('/dislikingAnswers/:id', auth, checkAnswerExist, unDisLikingAnswer);
 module.exports = router;

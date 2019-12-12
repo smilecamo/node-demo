@@ -1,6 +1,7 @@
 const jsonwebtoken = require('jsonwebtoken');
 const User = require('../models/users');
-const Question = require('../models/questions')
+const Question = require('../models/questions');
+const Answer = require('../models/answers.js');
 const { secret } = require('../config');
 class UserCtl {
   // 查询用户列表
@@ -197,9 +198,77 @@ class UserCtl {
     }
   }
   // 列出问题
-  async listQuestions(ctx){
-    const questions = await Question.find({questioner:ctx.params.id})
+  async listQuestions(ctx) {
+    const questions = await Question.find({ questioner: ctx.params.id });
     ctx.body = questions;
+  }
+  // 根据用户id获取点赞列表
+  async listLikingAnswers(ctx) {
+    const user = await User.findById(ctx.params.id)
+      .select('+likingAnswers')
+      .populate('likingAnswers');
+    if (!user) {
+      ctx.throw(404, '用户不存在');
+    }
+    ctx.body = user.likingAnswers;
+  }
+  // 点赞回答
+  async likeAnswer(ctx,next) {
+    const me = await User.findById(ctx.state.user._id).select('+likingAnswers');
+    if (!me.likingAnswers.map(id => id.toString()).includes(ctx.params.id)) {
+      me.likingAnswers.push(ctx.params.id);
+      me.save();
+      // 点赞加一
+      await Answer.findByIdAndUpdate(ctx.params.id, { $inc: { voteCount: 1 } });
+    }
+    ctx.status = 204;
+    await next()
+  }
+  // 取消点赞
+  async unLikeAnswer(ctx) {
+    const me = await User.findById(ctx.state.user._id).select('+likingAnswers');
+    const index = await me.likingAnswers
+      .map(id => id.toString())
+      .indexOf(ctx.params.id);
+    if (index > -1) {
+      me.likingAnswers.splice(index, 1);
+      me.save();
+      // 点赞减一
+      await Answer.findByIdAndUpdate(ctx.params.id, {
+        $inc: { voteCount: -1 }
+      });
+    }
+    ctx.status = 204;
+  }
+  // 踩的列表
+  async listDisLikingAnswer(ctx){
+    const user = await User.findById(ctx.params.id)
+      .select('+disLikingAnswers')
+      .populate('disLikingAnswers');
+    if(!user){
+      ctx.throw(404,'用户不存在')
+    }
+    ctx.body = user.disLikingAnswers;
+  }
+  // 踩某个回答
+  async disLikingAnswer(ctx,next){
+    const me = await User.findById(ctx.state.user._id).select('+disLikingAnswers')
+    if(!me.disLikingAnswers.map(f=>f.toString()).includes(ctx.params.id)){
+      me.disLikingAnswers.push(ctx.params.id)
+      me.save()
+    }
+    ctx.status = 204
+    await next();
+  }
+  // 取消踩
+  async unDisLikingAnswer(ctx){
+    const me = await User.findById(ctx.state.user._id).select('+disLikingAnswers')
+    const index = me.disLikingAnswers.map(f=>f.toString()).indexOf(ctx.params.id)
+    if(index>-1){
+      me.disLikingAnswers.splice(index,1)
+      me.save()
+    }
+    ctx.status=204
   }
 }
 

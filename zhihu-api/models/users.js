@@ -58,6 +58,16 @@ const userSchema = new Schema({
   followingTopics: {
     type: [{ type: Schema.Types.ObjectId, ref: 'Topic' }],
     select: false
+  },
+  // 点赞列表
+  likingAnswers: {
+    type: [{ type: Schema.Types.ObjectId, ref: 'Answer' }],
+    select: false
+  },
+  // 踩列表
+  disLikingAnswers: {
+    type: [{ type: Schema.Types.ObjectId, ref: 'Answer' }],
+    select: false
   }
 });
 
